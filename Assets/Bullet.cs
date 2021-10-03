@@ -6,12 +6,17 @@ public class Bullet : MonoBehaviour
 {
     [SerializeField] float bulletSpeed = 10f;
     [SerializeField] float expireTime = 10f;
+    [SerializeField] Vector2 direction = Vector2.up;
     float elapsedTime = 0f;
 
+    public void SetDirection(Vector2 dir)
+    {
+        direction = dir;
+    }
 
     void Update()
     {
-        Vector3 delta = Vector2.up * bulletSpeed * Time.deltaTime;
+        Vector3 delta = direction * bulletSpeed * Time.deltaTime;
         elapsedTime += Time.deltaTime;
         transform.position += delta;
 

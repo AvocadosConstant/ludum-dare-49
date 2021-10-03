@@ -14,7 +14,7 @@ public class Player : MonoBehaviour
 
     [SerializeField] float moveSpeed = 2.5f;
     [SerializeField] float maxHold = 3f;
-    [SerializeField] float cooldown = 0.5f;
+    [SerializeField] float cooldown = 0.05f;
     [SerializeField] PlayerMode mode = PlayerMode.Mode1;
 
     Vector2 moveDirection;
@@ -23,14 +23,14 @@ public class Player : MonoBehaviour
     bool clickPressed;
     bool fireReady = true;
     float timePressed = 0f;
-    
 
     public GameObject bulletPrefab;
     public GameObject missilePrefab;
     
-
     void Update()
     {
+        mouseLoc = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+
         Vector3 delta = moveDirection * moveSpeed * Time.deltaTime;
         transform.position += delta;
 
@@ -43,12 +43,6 @@ public class Player : MonoBehaviour
     void OnMove(InputValue value)
     {
         moveDirection = value.Get<Vector2>();
-    }
-
-    void OnLook(InputValue value)
-    {
-        mouseLoc = value.Get<Vector2>();
-        Debug.Log(mouseLoc);
     }
 
     void OnFire(InputValue value)
@@ -126,15 +120,20 @@ public class Player : MonoBehaviour
 
     void LaunchProjectile()
     {
-        Vector3 center = transform.position;
-        Instantiate(bulletPrefab, center, Quaternion.identity);
+        Vector3 spawnLoc = transform.position;
+        Vector2 direction = new Vector2(mouseLoc.x - spawnLoc.x, mouseLoc.y - spawnLoc.y).normalized;
+
+        Bullet bulletInstance = Instantiate(bulletPrefab, spawnLoc, Quaternion.identity).GetComponent<Bullet>();
+        bulletInstance.SetDirection(direction);
     }
 
     void LaunchMissile(float timeHeld)
     {
         Vector3 spawnLoc = transform.position;
+        Vector2 direction = new Vector2(mouseLoc.x - spawnLoc.x, mouseLoc.y - spawnLoc.y).normalized;
+        spawnLoc.x += direction.x * timeHeld;
+        spawnLoc.y += direction.y * timeHeld;
         spawnLoc.z = 1;
-        spawnLoc.y += timeHeld;
         Instantiate(missilePrefab, spawnLoc, Quaternion.identity);
     }
 }
