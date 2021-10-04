@@ -22,6 +22,10 @@ public class Player : MonoBehaviour
 
     bool clickPressed;
     bool fireReady = true;
+    bool down_col = false;
+    bool up_col = false;
+    bool left_col = false;
+    bool right_col = false;
     float timePressed = 0f;
 
     public GameObject bulletPrefab;
@@ -31,9 +35,29 @@ public class Player : MonoBehaviour
     {
         mouseLoc = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
 
-        Vector3 delta = moveDirection * moveSpeed * Time.deltaTime;
-        transform.position += delta;
+        ProcessMovement();
+        ProcessFire();
+        
+    }
 
+    void ProcessMovement()
+    {
+        Vector3 delta = moveDirection * moveSpeed * Time.deltaTime;
+
+        if (down_col && moveDirection.y > 0 || up_col && moveDirection.y < 0)
+        {
+            delta.y = 0;
+        }
+        if (left_col && moveDirection.x > 0 || right_col && moveDirection.x < 0)
+        {
+            delta.x = 0;
+        }
+
+        transform.position += delta;
+    }
+
+    void ProcessFire()
+    {
         if (mode == PlayerMode.Mode2 && clickPressed)
         {
             Mode2FireAux();
@@ -135,5 +159,46 @@ public class Player : MonoBehaviour
         spawnLoc.y += direction.y * timeHeld;
         spawnLoc.z = 1;
         Instantiate(missilePrefab, spawnLoc, Quaternion.identity);
+    }
+
+    void OnTriggerEnter2D(Collider2D col)
+    {
+        Debug.Log(col.gameObject.name + " : " + gameObject.name + " : " + Time.time);
+        if (col.gameObject.name.Equals("down_col"))
+        {
+            down_col = true;
+        }
+        if (col.gameObject.name.Equals("up_col"))
+        {
+            up_col = true;
+        }
+        if (col.gameObject.name.Equals("left_col"))
+        {
+            left_col = true;
+        }
+        if (col.gameObject.name.Equals("right_col"))
+        {
+            right_col = true;
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D col)
+    {
+        if (col.gameObject.name == "down_col")
+        {
+            down_col = false;
+        }
+        if (col.gameObject.name == "up_col")
+        {
+            up_col = false;
+        }
+        if (col.gameObject.name == "left_col")
+        {
+            left_col = false;
+        }
+        if (col.gameObject.name == "right_col")
+        {
+            right_col = false;
+        }
     }
 }
